@@ -14,9 +14,10 @@ export default class extends Component {
     if (snippetId) {
       // came from /v/hashid
       return getSnippet(snippetId)
-        .then(({ code, timeWindow }) => ({
+        .then(({ solution, code, timeWindow }) => ({
           exampleId: 'custom',
           code,
+          solution,
           timeWindow
         }))
         .catch(() => {
@@ -35,11 +36,12 @@ export default class extends Component {
     const { exampleId } = query;
 
     if (exampleId && codeExamples[exampleId]) {
-      const { code, timeWindow } = codeExamples[exampleId];
+      const { solution, code, timeWindow } = codeExamples[exampleId];
 
       return {
         exampleId,
         code,
+        solution,
         timeWindow
       };
     }
@@ -60,6 +62,7 @@ export default class extends Component {
       errorStatusCode: props.errorStatusCode,
       exampleId: props.exampleId,
       code: props.code,
+      solution: props.solution,
       timeWindowInputValue: props.timeWindow / 1000,
       timeWindowInputValueBeforeChange: null,
       vizParams: null,
@@ -115,7 +118,8 @@ export default class extends Component {
       code,
       timeWindowInputValue,
       timeWindowInputValueBeforeChange,
-      lastSnippetId
+      lastSnippetId,
+      solution
     } = this.state;
     const newTimeWindowInputValue =
       timeWindowInputValue === null
@@ -123,7 +127,8 @@ export default class extends Component {
         : timeWindowInputValue;
     const vizParams = {
       timeWindow: newTimeWindowInputValue * 1000,
-      code
+      code,
+      solution
     };
 
     this.setState({

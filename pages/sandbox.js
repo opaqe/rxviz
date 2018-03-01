@@ -41,7 +41,8 @@ export default class extends Component {
       case 'visualize': {
         const { timeWindow, code } = data.vizParams;
         const { error, observable$ } = getObservableFromCode(code, {
-          output: this.container
+          output: this.container,
+          foo: 'foobar!'
         });
 
         if (error) {

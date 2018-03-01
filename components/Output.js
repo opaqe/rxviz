@@ -5,7 +5,8 @@ export default class extends Component {
   static propTypes = {
     vizParams: PropTypes.shape({
       timeWindow: PropTypes.number.isRequired,
-      code: PropTypes.string.isRequired
+      code: PropTypes.string.isRequired,
+      solution: PropTypes.string
     }),
     onSvgStable: PropTypes.func.isRequired
   };
@@ -62,7 +63,7 @@ export default class extends Component {
             background-color: #fff;
             color: #eb121f;
             padding: 9px 30px;
-          }
+          } }
         `}</style>
       </div>
     );
@@ -70,6 +71,18 @@ export default class extends Component {
 
   sendMessageToSandbox(data) {
     this.sandboxWindow.postMessage(data, this.sandbox);
+    if (data.vizParams && data.vizParams.solution) {
+      this.solutionWindow.postMessage(
+        {
+          ...data,
+          vizParams: {
+            ...data.vizParams,
+            code: data.vizParams.solution
+          }
+        },
+        this.sandbox
+      );
+    }
   }
 
   handleMessageFromSandbox = ({ data }) => {
@@ -98,20 +111,44 @@ export default class extends Component {
     }
   };
 
+  saveSolutionWindow = iframe => {
+    if (iframe !== null) {
+      this.solutionWindow = iframe.contentWindow;
+    }
+  };
+
   render() {
-    const { error } = this.state;
+    const { error, vizParam } = this.state;
 
     return (
-      <div className="output">
-        <div className="content">
-          <iframe
-            src="/sandbox"
-            sandbox="allow-scripts allow-same-origin"
-            ref={this.saveSandboxWindow}
-          />
-          {error ? this.renderError() : null}
+      <div className="output panels">
+        <div className="output">
+          <div className="content">
+            <iframe
+              src="/sandbox"
+              sandbox="allow-scripts allow-same-origin"
+              ref={this.saveSandboxWindow}
+            />
+          </div>
         </div>
+        {vizParam &&
+          vizParam.solution &&
+          <div className="output">
+            <div className="content">
+              <iframe
+                src="/sandbox"
+                sandbox="allow-scripts allow-same-origin"
+                ref={this.saveSolutionWindow}
+              />
+            </div>
+          </div>}
+        {error ? this.renderError() : null}
         <style jsx>{`
+          .panels {
+            display: flex;
+            flex-direction: column;
+          }
+
           .output {
             display: flex;
             flex: 1 0 50%;
@@ -124,6 +161,11 @@ export default class extends Component {
             overflow-y: auto;
             position: relative;
             /* Needed for error, which is positioned absolutely */
+          }
+          .title {
+            margin: 10px;
+            height: 0px;
+            position: relative;
           }
           iframe {
             width: 100%;
