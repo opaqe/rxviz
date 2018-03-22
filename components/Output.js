@@ -71,18 +71,18 @@ export default class extends Component {
 
   sendMessageToSandbox(data) {
     this.sandboxWindow.postMessage(data, this.sandbox);
-    if (data.vizParams && data.vizParams.solution) {
-      this.solutionWindow.postMessage(
-        {
-          ...data,
-          vizParams: {
-            ...data.vizParams,
-            code: data.vizParams.solution
-          }
-        },
-        this.sandbox
-      );
-    }
+    const code = data.vizParams && data.vizParams.solution;
+
+    this.solutionWindow.postMessage(
+      {
+        ...data,
+        vizParams: {
+          ...data.vizParams,
+          code: code || 'Rx.Observable.empty()'
+        }
+      },
+      this.sandbox
+    );
   }
 
   handleMessageFromSandbox = ({ data }) => {
@@ -118,7 +118,7 @@ export default class extends Component {
   };
 
   render() {
-    const { error, vizParam } = this.state;
+    const { error } = this.state;
 
     return (
       <div className="output panels">
@@ -131,17 +131,15 @@ export default class extends Component {
             />
           </div>
         </div>
-        {vizParam &&
-          vizParam.solution &&
-          <div className="output">
-            <div className="content">
-              <iframe
-                src="/sandbox"
-                sandbox="allow-scripts allow-same-origin"
-                ref={this.saveSolutionWindow}
-              />
-            </div>
-          </div>}
+        <div className="output">
+          <div className="content">
+            <iframe
+              src="/sandbox"
+              sandbox="allow-scripts allow-same-origin"
+              ref={this.saveSolutionWindow}
+            />
+          </div>
+        </div>
         {error ? this.renderError() : null}
         <style jsx>{`
           .panels {

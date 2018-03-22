@@ -33,7 +33,7 @@ app
 
     server.get('/', (req, res) => {
       const actualPage = '/';
-      const queryParams = { exampleId: 'basic-interval' };
+      const queryParams = { exampleId: 'basics' };
 
       app.render(req, res, actualPage, queryParams);
     });
